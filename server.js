@@ -113,7 +113,18 @@ io.on('connection', (socket) => {
   });
 
   // Слушатель покидает комнату
-  socket.on('webrtc:leave', ({ hostId }) => {
+  socket.on('yt:request_sync', ({ hostId }) => {
+    io.to(hostId).emit('yt:request_sync', { from: socket.id });
+  });
+
+  socket.on('yt:sync_response', ({ to, videoId, position }) => {
+    io.to(to).emit('yt:sync_response', { videoId, position });
+  });
+
+  socket.on('yt:position', (data) => {
+    const room = 'room:' + socket.id;
+    socket.to(room).emit('yt:position', data);
+  });socket.on('webrtc:leave', ({ hostId }) => {
     const room = 'room:' + hostId;
     socket.leave(room);
     if(rooms[hostId]){
